@@ -3,11 +3,8 @@ use super::{
     driver::{default_driver_info, marker_driver_bin_name},
     Config,
 };
-use crate::error::prelude::*;
-use crate::observability::prelude::*;
-use crate::{utils::is_local_driver, Result};
-use camino::{Utf8Path, Utf8PathBuf};
 use std::process::Command;
+use camino::{Utf8Path, Utf8PathBuf};
 use yansi::Paint;
 
 #[derive(Debug)]

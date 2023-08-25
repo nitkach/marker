@@ -14,9 +14,9 @@ use super::LintCrateSource;
 use crate::error::prelude::*;
 use crate::observability::prelude::*;
 use crate::{backend::Config, config::LintDependencyEntry};
+use std::collections::HashMap;
 use camino::{Utf8Path, Utf8PathBuf};
 use cargo_metadata::Metadata;
-use std::collections::HashMap;
 
 /// This function fetches and locates all lint crates specified in the given
 /// configuration.

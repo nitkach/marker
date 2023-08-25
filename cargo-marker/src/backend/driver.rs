@@ -3,8 +3,8 @@ use crate::error::prelude::*;
 use crate::observability::display::print_stage;
 use crate::observability::prelude::*;
 use crate::{utils::is_local_driver, Result};
-use camino::Utf8Path;
 use std::process::Command;
+use camino::Utf8Path;
 use yansi::Paint;
 
 pub fn marker_driver_bin_name() -> String {
