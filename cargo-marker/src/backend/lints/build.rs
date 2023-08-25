@@ -2,8 +2,9 @@ use super::{LintCrate, LintCrateSource};
 use crate::backend::Config;
 use crate::error::prelude::*;
 use crate::observability::prelude::*;
+use camino::{Utf8Path, Utf8PathBuf};
 use itertools::Itertools;
-use std::{collections::HashSet, ffi::OsStr, path::Path};
+use std::{collections::HashSet, ffi::OsStr};
 use yansi::Paint;
 
 #[cfg(target_os = "linux")]
@@ -45,7 +46,7 @@ pub fn build_lints(sources: &[LintCrateSource], config: &Config) -> Result<Vec<L
 
     // Build lint crates and find the output of those builds
     let mut found_paths = HashSet::new();
-    let ending = OsStr::new(DYNAMIC_LIB_FILE_ENDING);
+    let ending = DYNAMIC_LIB_FILE_ENDING;
     let mut lints = Vec::with_capacity(sources.len());
 
     for lint_src in sources {
@@ -53,7 +54,8 @@ pub fn build_lints(sources: &[LintCrateSource], config: &Config) -> Result<Vec<L
         match std::fs::read_dir(&lints_dir) {
             Ok(dir) => {
                 for file in dir {
-                    let file = file.unwrap().path();
+                    let file =
+                        Utf8PathBuf::try_from(file.unwrap().path()).context(|| "Failed to convert to Utf8PathBuf")?;
                     if file.extension() == Some(ending) && !found_paths.contains(&file) {
                         found_paths.insert(file.clone());
                         lints.push(LintCrate {
@@ -68,7 +70,7 @@ pub fn build_lints(sources: &[LintCrateSource], config: &Config) -> Result<Vec<L
                 // more interested in the HOW?
                 panic!(
                     "unable to read lints dir after lint compilation: {} ({err:#?})",
-                    lints_dir.display()
+                    lints_dir
                 );
             },
         }
@@ -82,7 +84,7 @@ pub fn build_lints(sources: &[LintCrateSource], config: &Config) -> Result<Vec<L
 ///
 /// This is an extra function to not call `delete_dir_all` and just accidentally delete
 /// the entire system.
-fn clear_lints_dir(lints_dir: &Path) -> Result {
+fn clear_lints_dir(lints_dir: &Utf8Path) -> Result {
     // Delete all files
     let dir = match std::fs::read_dir(lints_dir) {
         Ok(dir) => dir,
@@ -115,7 +117,7 @@ fn clear_lints_dir(lints_dir: &Path) -> Result {
     }
 
     // The dir should now be empty
-    std::fs::remove_dir(lints_dir).context(|| format!("Failed to remove lints directory {}", lints_dir.display()))
+    std::fs::remove_dir(lints_dir).context(|| format!("Failed to remove lints directory {}", lints_dir))
 }
 
 fn build_lint(lint_src: &LintCrateSource, config: &Config) -> Result {

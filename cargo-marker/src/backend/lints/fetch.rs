@@ -14,9 +14,9 @@ use super::LintCrateSource;
 use crate::error::prelude::*;
 use crate::observability::prelude::*;
 use crate::{backend::Config, config::LintDependencyEntry};
-use cargo_metadata::Metadata;
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use camino::{Utf8Path, Utf8PathBuf};
+use cargo_metadata::Metadata;
 
 /// This function fetches and locates all lint crates specified in the given
 /// configuration.
@@ -35,7 +35,7 @@ pub fn fetch_crates(config: &Config) -> Result<Vec<LintCrateSource>> {
 
 /// This function sets up the dummy crate with all the lints listed as dependencies.
 /// It returns the path of the manifest, if everything was successful.
-fn setup_dummy_crate(config: &Config) -> Result<PathBuf> {
+fn setup_dummy_crate(config: &Config) -> Result<Utf8PathBuf> {
     /// A small hack, to have the lints namespaced under the `[dependencies]` section
     #[derive(serde::Serialize)]
     struct DepNamespace<'a> {
@@ -58,15 +58,15 @@ fn setup_dummy_crate(config: &Config) -> Result<PathBuf> {
     Ok(manifest_path)
 }
 
-fn write_to_file(path: &PathBuf, content: &str) -> Result {
+fn write_to_file(path: &Utf8Path, content: &str) -> Result {
     let parent = path
         .parent()
-        .unwrap_or_else(|| panic!("The file must have a parent directory. Path: {}", path.display()));
+        .unwrap_or_else(|| panic!("The file must have a parent directory. Path: {}", path));
 
     std::fs::create_dir_all(parent)
-        .context(|| format!("Failed to create the ditectory structure for {}", parent.display()))?;
+        .context(|| format!("Failed to create the directory structure for {}", parent))?;
 
-    std::fs::write(path, content).context(|| format!("Failed to write a file at {}", path.display()))
+    std::fs::write(path, content).context(|| format!("Failed to write a file at {}", path))
 }
 
 const DUMMY_MANIFEST_TEMPLATE: &str = r#"
@@ -94,7 +94,7 @@ const DUMMY_MAIN_CONTENT: &str = r#"
     }
 "#;
 
-fn call_cargo_fetch(manifest: &Path, config: &Config) -> Result {
+fn call_cargo_fetch(manifest: &Utf8Path, config: &Config) -> Result {
     let mut cmd = config.toolchain.cargo.command();
     cmd.arg("fetch");
     cmd.arg("--manifest-path");
@@ -121,7 +121,7 @@ fn call_cargo_fetch(manifest: &Path, config: &Config) -> Result {
     Err(Error::root("cargo fetch failed for lint crates"))
 }
 
-fn call_cargo_metadata(manifest: &PathBuf, config: &Config) -> Result<Metadata> {
+fn call_cargo_metadata(manifest: &Utf8Path, config: &Config) -> Result<Metadata> {
     config
         .toolchain
         .cargo
@@ -131,7 +131,7 @@ fn call_cargo_metadata(manifest: &PathBuf, config: &Config) -> Result<Metadata> 
         .context(|| {
             format!(
                 "Failed to get cargo metadata for the lint crates at {}",
-                manifest.display()
+                manifest
             )
         })
 }

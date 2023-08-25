@@ -3,7 +3,8 @@ use crate::error::prelude::*;
 use crate::observability::display::print_stage;
 use crate::observability::prelude::*;
 use crate::{utils::is_local_driver, Result};
-use std::{path::Path, process::Command};
+use std::process::Command;
+use camino::Utf8Path;
 use yansi::Paint;
 
 pub fn marker_driver_bin_name() -> String {
@@ -28,7 +29,7 @@ pub struct DriverVersionInfo {
 }
 
 impl DriverVersionInfo {
-    pub fn try_from_toolchain(toolchain: &Toolchain, manifest: &Path) -> Result<DriverVersionInfo> {
+    pub fn try_from_toolchain(toolchain: &Toolchain, manifest: &Utf8Path) -> Result<DriverVersionInfo> {
         // The driver has to be invoked via cargo, to ensure that the libraries
         // are correctly linked. Toolchains are truly fun...
         let output = toolchain
