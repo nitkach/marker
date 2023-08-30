@@ -1,13 +1,13 @@
-use crate::error::prelude::*;
-use crate::observability::prelude::*;
-use crate::{utils::is_local_driver, Result};
 use super::{
     cargo::Cargo,
     driver::{default_driver_info, marker_driver_bin_name},
     Config,
 };
-use std::process::Command;
+use crate::error::prelude::*;
+use crate::observability::prelude::*;
+use crate::{utils::is_local_driver, Result};
 use camino::{Utf8Path, Utf8PathBuf};
+use std::process::Command;
 use yansi::Paint;
 
 #[derive(Debug)]
@@ -158,8 +158,7 @@ pub(crate) fn get_toolchain_folder(toolchain: &str) -> Result<Utf8PathBuf> {
     let path = toolchain_cargo.ancestors().nth(2).context(|| {
         format!(
             "Unexpected layout of the rustup toolchain binary dir. There are not \
-            enough ancestors in the path `{}`",
-            toolchain_cargo
+            enough ancestors in the path `{toolchain_cargo}`"
         )
     })?;
 

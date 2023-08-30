@@ -14,9 +14,9 @@ use super::LintCrateSource;
 use crate::error::prelude::*;
 use crate::observability::prelude::*;
 use crate::{backend::Config, config::LintDependencyEntry};
-use std::collections::HashMap;
 use camino::{Utf8Path, Utf8PathBuf};
 use cargo_metadata::Metadata;
+use std::collections::HashMap;
 
 /// This function fetches and locates all lint crates specified in the given
 /// configuration.
@@ -61,12 +61,11 @@ fn setup_dummy_crate(config: &Config) -> Result<Utf8PathBuf> {
 fn write_to_file(path: &Utf8Path, content: &str) -> Result {
     let parent = path
         .parent()
-        .unwrap_or_else(|| panic!("The file must have a parent directory. Path: {}", path));
+        .unwrap_or_else(|| panic!("The file must have a parent directory. Path: {path}"));
 
-    std::fs::create_dir_all(parent)
-        .context(|| format!("Failed to create the directory structure for {}", parent))?;
+    std::fs::create_dir_all(parent).context(|| format!("Failed to create the directory structure for {parent}"))?;
 
-    std::fs::write(path, content).context(|| format!("Failed to write a file at {}", path))
+    std::fs::write(path, content).context(|| format!("Failed to write a file at {path}"))
 }
 
 const DUMMY_MANIFEST_TEMPLATE: &str = r#"
@@ -128,12 +127,7 @@ fn call_cargo_metadata(manifest: &Utf8Path, config: &Config) -> Result<Metadata>
         .metadata()
         .manifest_path(manifest)
         .exec()
-        .context(|| {
-            format!(
-                "Failed to get cargo metadata for the lint crates at {}",
-                manifest
-            )
-        })
+        .context(|| format!("Failed to get cargo metadata for the lint crates at {manifest}"))
 }
 
 fn extract_lint_crate_sources(metadata: &Metadata, marker_config: &Config) -> Vec<LintCrateSource> {
@@ -143,7 +137,7 @@ fn extract_lint_crate_sources(metadata: &Metadata, marker_config: &Config) -> Ve
         .filter(|pkg| marker_config.lints.contains_key(&pkg.name))
         .map(|pkg| LintCrateSource {
             name: pkg.name.clone(),
-            manifest: pkg.manifest_path.clone().into(),
+            manifest: pkg.manifest_path.clone(),
         })
         .collect()
 }

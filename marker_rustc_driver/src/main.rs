@@ -271,7 +271,7 @@ fn try_main() -> Result<(), MainError> {
 
     // Setting RUSTC_WRAPPER causes Cargo to pass 'rustc' as the first argument.
     // We're invoking the compiler programmatically, so we'll ignore this.
-    let wrapper_mode = orig_args.get(1).map(Utf8Path::new).and_then(Utf8Path::file_stem) == Some("rustc".as_ref());
+    let wrapper_mode = orig_args.get(1).map(Utf8Path::new).and_then(Utf8Path::file_stem) == Some("rustc");
 
     if wrapper_mode {
         // we still want to be able to invoke rustc normally

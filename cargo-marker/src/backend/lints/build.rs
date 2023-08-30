@@ -68,10 +68,7 @@ pub fn build_lints(sources: &[LintCrateSource], config: &Config) -> Result<Vec<L
             Err(err) => {
                 // This shouldn't really be a point of failure. In this case, I'm
                 // more interested in the HOW?
-                panic!(
-                    "unable to read lints dir after lint compilation: {} ({err:#?})",
-                    lints_dir
-                );
+                panic!("unable to read lints dir after lint compilation: {lints_dir} ({err:#?})");
             },
         }
     }
@@ -117,7 +114,7 @@ fn clear_lints_dir(lints_dir: &Utf8Path) -> Result {
     }
 
     // The dir should now be empty
-    std::fs::remove_dir(lints_dir).context(|| format!("Failed to remove lints directory {}", lints_dir))
+    std::fs::remove_dir(lints_dir).context(|| format!("Failed to remove lints directory {lints_dir}"))
 }
 
 fn build_lint(lint_src: &LintCrateSource, config: &Config) -> Result {
